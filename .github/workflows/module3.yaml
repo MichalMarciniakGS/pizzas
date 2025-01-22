@@ -1,0 +1,21 @@
+name: Homework2
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest --output-on-failure
+      
+    - name: Run unit tests directly
+      working-directory: ${{github.workspace}}/build
+      run: ./PizzasTest-ut

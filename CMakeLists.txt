@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.11.0)
 project(PizzasTest)
 
+# Enable testing
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -36,3 +39,6 @@ add_executable(${PROJECT_NAME}-ut
 )
 
 target_link_libraries(${PROJECT_NAME}-ut gmock_main)
+
+# Add the test
+add_test(NAME ${PROJECT_NAME}-ut COMMAND ${PROJECT_NAME}-ut)

@@ -1,24 +1,19 @@
 #include <gtest/gtest.h>
 #include <string>
 #include "mocks/PizzaMock.hpp"
+#include "mocks/TimeMock.hpp"
 #include "Pizzeria.hpp"
 #include "Margherita.hpp"
 #include "Funghi.hpp"
-#include "PizzaTime.hpp"
-#include "PizzaTimeImplZero.hpp"
 
 using namespace std;
 using namespace ::testing;
 
 struct PizzeriaTest : public ::testing::Test
 {
-
-PizzaTimeImplZero pizzaTimeImplZero;
-
-public:
-    Pizzeria pizzeria = Pizzeria("dummyName", &pizzaTimeImplZero); 
+    StrictMock<TimeMock> timeMock;
+    Pizzeria pizzeria = Pizzeria("testPizzeria", &timeMock);
 };
-
 
 TEST_F(PizzeriaTest, priceForMargherita25AndFunghi30ShouldBe55)
 {
@@ -36,7 +31,12 @@ TEST_F(PizzeriaTest, priceForMargherita25AndFunghi30ShouldBe55)
 TEST_F(PizzeriaTest, bakeDummyPizza)
 {
     // Given
-    Pizzas pizzas = {new PizzaDummy{}};
+    PizzaDummy* pizza = new PizzaDummy{};
+    Pizzas pizzas = {pizza};
+
+    // Expect
+    EXPECT_CALL(timeMock, waitForPizza(pizza))
+        .Times(1);
 
     // When
     auto orderId = pizzeria.makeOrder(pizzas);
@@ -46,7 +46,12 @@ TEST_F(PizzeriaTest, bakeDummyPizza)
 TEST_F(PizzeriaTest, completeOrderWithStubPizza)
 {
     // Given
-    Pizzas pizzas = {new PizzaStub{}};
+    PizzaStub* pizza = new PizzaStub{};
+    Pizzas pizzas = {pizza};
+
+    // Expect
+    EXPECT_CALL(timeMock, waitForPizza(pizza))
+        .Times(1);
 
     // When
     auto orderId = pizzeria.makeOrder(pizzas);
@@ -71,36 +76,32 @@ TEST_F(PizzeriaTest, calculatePriceForPizzaMock)
     delete mock;
 }
 
-TEST_F(PizzeriaTest, PlayWithMock){
-
-    //Given
-    // StrictMock<PizzaMock>* mock = new StrictMock<PizzaMock>{};
+TEST_F(PizzeriaTest, PlayWithMock)
+{
+    // Given
     PizzaMock* mock = new PizzaMock{};
     Pizzas pizzas = {mock};
-    EXPECT_CALL(*mock,getName).WillOnce(Return("Hawajska"));
-    EXPECT_CALL(*mock,getBakingTime);
+
+    // Expect
+    EXPECT_CALL(*mock, getName())
+        .WillOnce(Return("Hawajska"));
+    EXPECT_CALL(timeMock, waitForPizza(mock))
+        .Times(1);
     
-    // EXPECT_CALL(*mock,getBakingTime).WillOnce(Return(minutes(0)));
-    
-    
-    //When
+    // When
     auto orderId = pizzeria.makeOrder(pizzas);
     pizzeria.bakePizzas(orderId);
 
-    //Then
-
-    //Teardown
+    // Cleanup
     delete mock;
-
 }
-TEST_F(PizzeriaTest, GivenNonExistingOrderWhenBakePizzasIsCalledThenInvalidArgumentIsThrown){
 
-    //Given
+TEST_F(PizzeriaTest, GivenNonExistingOrderWhenBakePizzasIsCalledThenInvalidArgumentIsThrown)
+{
+    // Given
     constexpr int notExistingOrder = 123;
 
-    //When Then
-    
+    // When Then
     EXPECT_THROW(pizzeria.bakePizzas(notExistingOrder), std::invalid_argument);
     EXPECT_ANY_THROW(pizzeria.bakePizzas(notExistingOrder));
-
 }
