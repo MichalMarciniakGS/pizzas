@@ -4,14 +4,19 @@
 #include "Pizzeria.hpp"
 #include "Margherita.hpp"
 #include "Funghi.hpp"
+#include "PizzaTime.hpp"
+#include "PizzaTimeImplZero.hpp"
 
 using namespace std;
 using namespace ::testing;
 
 struct PizzeriaTest : public ::testing::Test
 {
+
+PizzaTimeImplZero pizzaTimeImplZero;
+
 public:
-    Pizzeria pizzeria = Pizzeria("dummyName"); 
+    Pizzeria pizzeria = Pizzeria("dummyName", &pizzaTimeImplZero); 
 };
 
 
@@ -41,7 +46,7 @@ TEST_F(PizzeriaTest, bakeDummyPizza)
 TEST_F(PizzeriaTest, completeOrderWithStubPizza)
 {
     // Given
-    Pizzas pizzas = {new PizzaStub{"STUB"}};
+    Pizzas pizzas = {new PizzaStub{}};
 
     // When
     auto orderId = pizzeria.makeOrder(pizzas);
@@ -64,4 +69,38 @@ TEST_F(PizzeriaTest, calculatePriceForPizzaMock)
     ASSERT_EQ(40, price);
 
     delete mock;
+}
+
+TEST_F(PizzeriaTest, PlayWithMock){
+
+    //Given
+    // StrictMock<PizzaMock>* mock = new StrictMock<PizzaMock>{};
+    PizzaMock* mock = new PizzaMock{};
+    Pizzas pizzas = {mock};
+    EXPECT_CALL(*mock,getName).WillOnce(Return("Hawajska"));
+    EXPECT_CALL(*mock,getBakingTime);
+    
+    // EXPECT_CALL(*mock,getBakingTime).WillOnce(Return(minutes(0)));
+    
+    
+    //When
+    auto orderId = pizzeria.makeOrder(pizzas);
+    pizzeria.bakePizzas(orderId);
+
+    //Then
+
+    //Teardown
+    delete mock;
+
+}
+TEST_F(PizzeriaTest, GivenNonExistingOrderWhenBakePizzasIsCalledThenInvalidArgumentIsThrown){
+
+    //Given
+    constexpr int notExistingOrder = 123;
+
+    //When Then
+    
+    EXPECT_THROW(pizzeria.bakePizzas(notExistingOrder), std::invalid_argument);
+    EXPECT_ANY_THROW(pizzeria.bakePizzas(notExistingOrder));
+
 }

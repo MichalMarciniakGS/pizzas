@@ -1,22 +1,22 @@
 #include "Pizza.hpp"
 
-Pizza::Pizza(std::string const & name, double price, minutes bakingTime)
+ConcretePizza::ConcretePizza(std::string const & name, double price, minutes bakingTime)
     : name_(name)
     , price_(price)
     , bakingTime_(bakingTime)
 {}
 
-std::string Pizza::getName() const
+std::string ConcretePizza::getName() const
 {
     return name_;
 }
 
-double Pizza::getPrice() const
+double ConcretePizza::getPrice() const
 {
-    return 30.0;
+    return price_;
 }
 
-minutes Pizza::getBakingTime() const
+minutes ConcretePizza::getBakingTime() const
 {
     return bakingTime_;
 }
